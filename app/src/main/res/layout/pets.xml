@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:background="@drawable/rounded_border">
+
+                <TextView
+                    android:id="@+id/txtNomePet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:text="Nome: "
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/txtRacaPet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/txtNomePet"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:text="Raça: "
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/txtGeneroPet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/txtRacaPet"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:text="Gênero: "
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/txtDataNascPet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/txtGeneroPet"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:text="Data de Nascimento: "
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:id="@+id/ivMenuOptions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_more_vert"
+                    android:contentDescription="Opções"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

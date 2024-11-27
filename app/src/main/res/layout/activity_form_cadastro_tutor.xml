@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    tools:context=".FormCadastroTutor">
+
+    <TextView
+        android:id="@+id/title_cad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Preencha os campos para cadastrar-se."
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <View
+        android:id="@+id/containerComponents"
+        style="@style/ContainerComponents2"
+        app:layout_constraintTop_toBottomOf="@id/title_cad"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <EditText
+        android:id="@+id/edt_nomet"
+        style="@style/Edit_Text"
+        app:layout_constraintTop_toTopOf="@id/containerComponents"
+        app:layout_constraintStart_toStartOf="@id/containerComponents"
+        app:layout_constraintEnd_toEndOf="@id/containerComponents"
+        android:hint="NOME"
+        android:inputType="text"
+        />
+
+    <EditText
+        android:id="@+id/edt_senhat"
+        style="@style/Edit_Text"
+        app:layout_constraintTop_toBottomOf="@id/edt_nomet"
+        app:layout_constraintStart_toStartOf="@id/containerComponents"
+        app:layout_constraintEnd_toEndOf="@id/containerComponents"
+        android:hint="SENHA"
+        android:inputType="textPassword"
+        />
+
+    <EditText
+        android:id="@+id/edt_emailt"
+        style="@style/Edit_Text"
+        app:layout_constraintTop_toBottomOf="@id/edt_senhat"
+        app:layout_constraintStart_toStartOf="@id/containerComponents"
+        app:layout_constraintEnd_toEndOf="@id/containerComponents"
+        android:hint="E-MAIL"
+        android:inputType="textEmailAddress"
+        />
+
+    <EditText
+        android:id="@+id/edt_telt"
+        style="@style/Edit_Text"
+        android:maxLength="11"
+        app:layout_constraintTop_toBottomOf="@id/edt_emailt"
+        app:layout_constraintStart_toStartOf="@id/containerComponents"
+        app:layout_constraintEnd_toEndOf="@id/containerComponents"
+        android:hint="(DDD)TELEFONE"
+        android:inputType="phone"
+        />
+
+    <EditText
+        android:id="@+id/edt_endt"
+        style="@style/Edit_Text"
+        app:layout_constraintTop_toBottomOf="@id/edt_telt"
+        app:layout_constraintStart_toStartOf="@id/containerComponents"
+        app:layout_constraintEnd_toEndOf="@id/containerComponents"
+        android:hint="LOGRADOURO, NÚMERO"
+        android:inputType="text"
+        />
+
+    <EditText
+        android:id="@+id/edt_cidadet"
+        style="@style/Edit_Text2"
+        android:layout_width="245dp"
+        app:layout_constraintTop_toBottomOf="@id/edt_endt"
+        app:layout_constraintStart_toStartOf="@id/containerComponents"
+        android:hint="CIDADE"
+        android:inputType="text"
+        />
+
+    <EditText
+        android:id="@+id/edt_uft"
+        style="@style/Edit_Text3"
+        android:layout_width="70dp"
+        android:maxLength="2"
+        app:layout_constraintTop_toBottomOf="@id/edt_endt"
+        app:layout_constraintStart_toStartOf="@id/edt_cidadet"
+        app:layout_constraintEnd_toEndOf="@id/containerComponents"
+        android:hint="UF"
+        android:inputType="text"
+        android:textAllCaps="true"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_cadtutor"
+        style="@style/Button"
+        android:text="CADASTRAR"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/edt_cidadet"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

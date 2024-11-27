@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">PetCare</string>
+    <string-array name="spinner">
+        <item>MÉDICO VETERINÁRIO</item>
+        <item>TUTOR</item>
+    </string-array>
+    <string name="title_activity_form_inicio_tutor">FormInicioTutor</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Conta</string>
+    <string name="menu_gallery">Configurações</string>
+    <string name="menu_slideshow">Sobre</string>
+    <string name="title_activity_form_inicio_med_vet">FormInicioMedVet</string>
+</resources>

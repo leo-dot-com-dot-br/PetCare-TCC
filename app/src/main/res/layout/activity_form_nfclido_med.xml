@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nome:"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/txtNomePet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="Nome do Pet"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Raça:"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+    <EditText
+        android:id="@+id/edtRacaPet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Raça do Pet"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gênero:"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+    <EditText
+        android:id="@+id/edtGeneroPet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Gênero do Pet"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Data de Nascimento:"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+    <EditText
+        android:id="@+id/edtDataNascPet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Data de Nascimento"
+        android:inputType="date"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vacinas Aplicadas:"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvVacinas"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scrollbars="vertical"/>
+
+    <Button
+        android:id="@+id/btnAddVacina"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Adicionar Vacina"
+        android:layout_gravity="end"
+        android:backgroundTint="@color/blue2"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Observações:"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edtObservacaoPet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Obs.:"
+        android:minLines="3"
+        android:inputType="textMultiLine"/>
+
+    <Button
+        android:id="@+id/btnFinalizar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Finalizar Atendimento"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/blue2"/>
+</LinearLayout>

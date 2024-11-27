@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/txtNomeVacina"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Nome da Vacina"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnAplicarVacina"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aplicar Vacina"
+        android:textSize="14sp"
+        android:padding="7dp"
+        android:layout_marginStart="8dp"
+        android:backgroundTint="@color/blue2"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/txtDataAplicacao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Data Aplicação"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:layout_gravity="end" />
+
+    <TextView
+        android:id="@+id/txtCrmv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CRMV"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:layout_marginTop="4dp"
+        android:layout_gravity="end" />
+</LinearLayout>
