@@ -28,7 +28,6 @@ public class FormCadastroPet extends AppCompatActivity {
     private EditText edt_nomep, edt_racap, edt_sxp, edt_dtnasc;
     private Button btn_cadpet;
     private DatabaseHelper dbHelper;
-    private int id_tutor;
     private NfcAdapter nfcAdapter;
     private String id_nfc;
     private PendingIntent pendingIntent;
@@ -106,12 +105,13 @@ public class FormCadastroPet extends AppCompatActivity {
             values.put("genero_pet", edt_sxp.getText().toString());
             values.put("data_nasc_pet", edt_dtnasc.getText().toString());
             values.put("id_nfc", id_nfc);
-            values.put("id_tutor", id_tutor);
+            values.put("id_tutor", idTutor);
 
             long newRowId = db.insert("pet", null, values);
             if (newRowId != -1) {
                 Toast.makeText(FormCadastroPet.this, "Pet cadastrado com sucesso!", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(FormCadastroPet.this, FormInicioTutor.class);
+                Log.d("CadastroPet", "Pet cadastrado com sucesso! ID do tutor: " + idTutor + ", ID do pet: " + newRowId);
                 startActivity(intent);
             } else {
                 Toast.makeText(FormCadastroPet.this, "Erro ao cadastrar pet! Tente novamente.", Toast.LENGTH_LONG).show();
@@ -172,48 +172,48 @@ public class FormCadastroPet extends AppCompatActivity {
         btn_cadpet = findViewById(R.id.btn_cadpet);
 
         edt_dtnasc.addTextChangedListener(new TextWatcher() {
-            private String current = "";
-            private final String ddmmyyyy = "ddmmyyyy";
-            private final Calendar cal = Calendar.getInstance();
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().equals(current)) {
-                    String clean = s.toString().replaceAll("[^\\d]", "");
-                    int sel = clean.length();
-                    int index = 2;
-
-                    while (index < clean.length() && index < 6) {
-                        sel++;
-                        index += 2;
-                    }
-
-                    if (clean.length() == 8) {
-                        int month = Integer.parseInt(clean.substring(0, 2));
-                        int day = Integer.parseInt(clean.substring(2, 4));
-                        int year = Integer.parseInt(clean.substring(4, 8));
-
-                        month = (month < 1) ? 1 : Math.min(month, 12);
-                        cal.set(Calendar.MONTH, month - 1);
-                        year = (year < 1900) ? 1900 : Math.min(year, 2100);
-                        cal.set(Calendar.YEAR, year);
-                        day = Math.min(day, cal.getActualMaximum(Calendar.DATE));
-                        clean = String.format(Locale.US, "%02d%02d%04d", month, day, year);
-
-                        clean = String.format(Locale.US, "%s/%s/%s", clean.substring(0, 2),
-                                clean.substring(2, 4),
-                                clean.substring(4, 8));
-                    }
-
-                    sel = Math.max(sel, 0);
-                    current = clean;
-                    edt_dtnasc.setText(current);
-                    edt_dtnasc.setSelection(Math.min(sel, current.length()));
-                }
-            }
+            private boolean isUpdating = false;
+            private final String mask = "##/##/####";
+            private int cursorPosition = 0;
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                cursorPosition = edt_dtnasc.getSelectionStart();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isUpdating) {
+                    return;
+                }
+                isUpdating = true;
+
+                String clean = s.toString().replaceAll("[^\\d]", "");
+                StringBuilder formatted = new StringBuilder();
+
+                int index = 0;
+                for (char c : mask.toCharArray()) {
+                    if (c == '#' && index < clean.length()) {
+                        formatted.append(clean.charAt(index));
+                        index++;
+                    } else if (c != '#') {
+                        formatted.append(c);
+                    }
+                }
+
+                edt_dtnasc.setText(formatted.toString());
+
+                int cursorOffset = 0;
+                for (int i = 0; i < cursorPosition && i < formatted.length(); i++) {
+                    if (mask.charAt(i) != '#' && clean.length() < mask.length() - cursorOffset) {
+                        cursorOffset++;
+                    }
+                }
+
+                int newCursorPosition = cursorPosition + cursorOffset;
+                edt_dtnasc.setSelection(Math.min(newCursorPosition, formatted.length()));
+
+                isUpdating = false;
             }
 
             @Override

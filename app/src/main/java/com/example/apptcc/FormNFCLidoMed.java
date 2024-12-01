@@ -3,7 +3,6 @@ package com.example.apptcc;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
@@ -19,6 +18,8 @@ import androidx.annotation.Nullable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import android.text.TextWatcher;
+import android.text.Editable;
 
 public class FormNFCLidoMed extends AppCompatActivity {
 
@@ -52,6 +53,15 @@ public class FormNFCLidoMed extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
         idNfc = getIntent().getStringExtra("idNfc");
+        int id_pet = getIntent().getIntExtra("id_pet", -1);
+
+        if (id_pet != -1) {
+            Log.d("FormNFCLidoMed", "ID do Pet recebido: " + id_pet);
+        } else {
+            Log.e("FormNFCLidoMed", "ID do Pet não foi recebido corretamente.");
+            Toast.makeText(this, "Erro ao carregar os dados do Pet.", Toast.LENGTH_LONG).show();
+            finish();
+        }
 
         rvVacinas.setLayoutManager(new LinearLayoutManager(this));
 
@@ -64,9 +74,60 @@ public class FormNFCLidoMed extends AppCompatActivity {
 
         btnAddVacina.setOnClickListener(v -> {
             Intent intent = new Intent(FormNFCLidoMed.this, VacinasCadastradas.class);
+            intent.putExtra("id_pet", id_pet);
             startActivityForResult(intent, 2);
         });
         btnFinalizar.setOnClickListener(v -> finalizarAtendimento());
+
+        edtDataNascPet.addTextChangedListener(new TextWatcher() {
+            private boolean isUpdating = false;
+            private final String mask = "##/##/####";
+            private int cursorPosition = 0;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                cursorPosition = edtDataNascPet.getSelectionStart();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isUpdating) {
+                    return;
+                }
+                isUpdating = true;
+
+                String clean = s.toString().replaceAll("[^\\d]", "");
+                StringBuilder formatted = new StringBuilder();
+
+                int index = 0;
+                for (char c : mask.toCharArray()) {
+                    if (c == '#' && index < clean.length()) {
+                        formatted.append(clean.charAt(index));
+                        index++;
+                    } else if (c != '#') {
+                        formatted.append(c);
+                    }
+                }
+
+                edtDataNascPet.setText(formatted.toString());
+
+                int cursorOffset = 0;
+                for (int i = 0; i < cursorPosition && i < formatted.length(); i++) {
+                    if (mask.charAt(i) != '#' && clean.length() < mask.length() - cursorOffset) {
+                        cursorOffset++;
+                    }
+                }
+
+                int newCursorPosition = cursorPosition + cursorOffset;
+                edtDataNascPet.setSelection(Math.min(newCursorPosition, formatted.length()));
+
+                isUpdating = false;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
     private void carregarDadosPet(String idNfc) {
@@ -85,18 +146,18 @@ public class FormNFCLidoMed extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == 2 && resultCode == RESULT_OK && data != null) {
             int vacinaId = data.getIntExtra("vacinaId", -1);
             if (vacinaId != -1) {
                 String dataAplicacao = getDataAtual();
-                String crmv = "CRMV do Veterinário";
-
+                String crmv = "crmv";
                 boolean inserido = dbHelper.inserirVacinaParaPet(petId, vacinaId, dataAplicacao, crmv);
                 if (inserido) {
                     carregarVacinas(petId);
                     Toast.makeText(this, "Vacina adicionada com sucesso!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "Erro ao adicionar a vacina.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Pet já possui essa aplicação de vacina.", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -106,7 +167,7 @@ public class FormNFCLidoMed extends AppCompatActivity {
         List<Vacina> vacinaList = dbHelper.getVacinasDoPet(petId);
 
         if (adapter == null) {
-            adapter = new VacinaAdapter(vacinaList, true, false, vacina -> {
+            adapter = new VacinaAdapter(vacinaList, false, true, false, false, vacina -> {
             });
             rvVacinas.setAdapter(adapter);
         } else {

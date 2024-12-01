@@ -21,6 +21,9 @@ import androidx.appcompat.widget.SearchView;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 import android.util.Log;
+import androidx.core.view.GravityCompat;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+
 
 public class FormInicioTutor extends AppCompatActivity {
 
@@ -64,12 +67,41 @@ public class FormInicioTutor extends AppCompatActivity {
         NavigationView navigationView = binding.navView;
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_conta, R.id.nav_sobre, R.id.nav_sair)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_form_inicio_tutor);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_conta) {
+                SharedPreferences sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE);
+                int idTutor = sharedPreferences.getInt("id_tutor", -1);
+
+                if (idTutor != -1) {
+                    Intent contaIntent = new Intent(FormInicioTutor.this, FormContaTutor.class);
+                    contaIntent.putExtra("id_tutor", idTutor);
+                    startActivity(contaIntent);
+                } else {
+                    Toast.makeText(this, "Erro ao identificar o tutor logado.", Toast.LENGTH_SHORT).show();
+                }
+            }
+            else if (id == R.id.nav_sobre) {
+                Intent sobreIntent = new Intent(FormInicioTutor.this, FormSobreTutor.class);
+                startActivity(sobreIntent);
+            } else if (id == R.id.nav_sair) {
+                SharedPreferences.Editor editor = getSharedPreferences("AppPreferences", MODE_PRIVATE).edit();
+                editor.clear();
+                editor.apply();
+                Intent loginIntent = new Intent(FormInicioTutor.this, FormLogin.class);
+                startActivity(loginIntent);
+                finish();
+            }
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
 
         SearchView searchView = findViewById(R.id.searchViewPets);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -89,6 +121,17 @@ public class FormInicioTutor extends AppCompatActivity {
                 petAdapter.updatePetList(filteredPets);
             }
         });
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this,
+                binding.drawerLayout,
+                binding.appBarFormInicioTutor.toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+        );
+        binding.drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
     }
 
     @Override
@@ -114,13 +157,7 @@ public class FormInicioTutor extends AppCompatActivity {
             Toast.makeText(this, "Erro ao identificar tutor logado.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         List<Pet> petsDoTutor = databaseHelper.getPetsDoTutor(idTutor);
-
-        if (petsDoTutor.isEmpty()) {
-            Toast.makeText(this, "Nenhum pet cadastrado para este tutor.", Toast.LENGTH_SHORT).show();
-        } else {
-            petAdapter.updatePetList(petsDoTutor);
-        }
+        petAdapter.updatePetList(petsDoTutor);
     }
 }

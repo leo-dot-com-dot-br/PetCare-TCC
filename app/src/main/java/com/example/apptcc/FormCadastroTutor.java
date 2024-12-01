@@ -42,6 +42,12 @@ public class FormCadastroTutor extends AppCompatActivity {
         btn_cadtutor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String senha = edt_senhat.getText().toString();
+
+                if (senha.length() < 8) {
+                    Toast.makeText(FormCadastroTutor.this, "A senha deve ter no mínimo 8 caracteres!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 cadastrarTutor();
             }
         });

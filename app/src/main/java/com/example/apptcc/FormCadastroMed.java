@@ -38,10 +38,15 @@ public class FormCadastroMed extends AppCompatActivity {
         });
         IniciarComponentes();
 
-
         btn_cadmed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String senha = edt_senha.getText().toString();
+
+                if (senha.length() < 8) {
+                    Toast.makeText(FormCadastroMed.this, "A senha deve ter no mínimo 8 caracteres!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                     SQLiteDatabase db = dbHelper.getWritableDatabase();
                     ContentValues values = new ContentValues();
                     values.put("crmv", edt_crmv.getText().toString());
@@ -55,12 +60,9 @@ public class FormCadastroMed extends AppCompatActivity {
                     } else {
                         Toast.makeText(FormCadastroMed.this, "Erro ao cadastrar médico veterinário!", Toast.LENGTH_LONG).show();
                     }
-
-                    // Fecha a conexão com o banco de dados
                     db.close();
                 }
         });
-
     }
 
     private void IniciarComponentes(){

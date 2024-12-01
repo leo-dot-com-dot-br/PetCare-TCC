@@ -36,7 +36,7 @@ public class FormDetalhesPet extends AppCompatActivity {
         rvVacinas = findViewById(R.id.rvVacinas);
         rvVacinas.setLayoutManager(new LinearLayoutManager(this));
         vacinaList = new ArrayList<>();
-        vacinaAdapter = new VacinaAdapter(vacinaList, false, false, null);
+        vacinaAdapter = new VacinaAdapter(vacinaList,false, true, false, false, null);
         rvVacinas.setAdapter(vacinaAdapter);
 
         TextView txtObservacaoPet = findViewById(R.id.txtObservacaoPet);

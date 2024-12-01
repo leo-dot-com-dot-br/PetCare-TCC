@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +20,8 @@ public class VacinasCadastradas extends AppCompatActivity {
     private RecyclerView rvVacinas;
     private Button btnAddNovaVacina;
     private DatabaseHelper dbHelper;
+    private SearchView searchViewVacina;
+    private VacinaAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +35,34 @@ public class VacinasCadastradas extends AppCompatActivity {
 
         rvVacinas = findViewById(R.id.rvVacinas);
         btnAddNovaVacina = findViewById(R.id.btnAddNovaVacina);
+        searchViewVacina = findViewById(R.id.searchViewVacina);
         dbHelper = new DatabaseHelper(this);
+
+        int idPet = getIntent().getIntExtra("id_pet", -1);
+
+        if (idPet == -1) {
+            Toast.makeText(this, "Erro ao carregar ID do pet.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         rvVacinas.setLayoutManager(new LinearLayoutManager(this));
 
         carregarVacinas();
+
+        searchViewVacina.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterVacinas(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterVacinas(newText);
+                return true;
+            }
+        });
 
         btnAddNovaVacina.setOnClickListener(v -> {
             Intent intent = new Intent(VacinasCadastradas.this, FormCadastroVacina.class);
@@ -46,15 +72,24 @@ public class VacinasCadastradas extends AppCompatActivity {
 
     private void carregarVacinas() {
         List<Vacina> vacinaList = dbHelper.getAllVacinas();
-        VacinaAdapter adapter = new VacinaAdapter(vacinaList, false, true, vacina -> {
-            Intent intent = new Intent();
-            intent.putExtra("vacinaId", vacina.getId());
-            setResult(RESULT_OK, intent);
-            finish();
-        });
+        if (adapter == null) {
+            adapter = new VacinaAdapter(vacinaList, true, false, false, true, vacina -> {
+                Intent intent = new Intent();
+                intent.putExtra("vacinaId", vacina.getId());
+                setResult(RESULT_OK, intent);
+                finish();
+            });
+            rvVacinas.setAdapter(adapter);
+        } else {
+            adapter.updateVacinas(vacinaList);
+        }
+    }
 
-        rvVacinas.setAdapter(adapter);
-        rvVacinas.setLayoutManager(new LinearLayoutManager(this));
+    private void filterVacinas(String query) {
+        if (adapter != null) {
+            List<Vacina> filteredVacinas = dbHelper.searchVacina(query);
+            adapter.updateVacinas(filteredVacinas);
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteConstraintException;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -38,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "id_nfc TEXT NOT NULL UNIQUE, " +
             "observacao_pet TEXT, " +
             "id_tutor INTEGER, " +
-            "FOREIGN KEY (id_tutor) REFERENCES tutor(id_tutor));";
+            "FOREIGN KEY (id_tutor) REFERENCES tutor(id_tutor)ON DELETE CASCADE);";
 
     private static final String CREATE_TABLE_VACINA = "CREATE TABLE vacina (" +
             "id_vacina INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -52,7 +53,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "crmv TEXT, " +
             "FOREIGN KEY (id_pet) REFERENCES Pet(id_pet)," +
             "FOREIGN KEY (id_vacina) REFERENCES Vacina(id_vacina)," +
-            "FOREIGN KEY (crmv) REFERENCES MDV(crmv));";
+            "FOREIGN KEY (crmv) REFERENCES MDV(crmv)," +
+            "UNIQUE (id_pet, id_vacina));";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -87,12 +89,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result > 0;
     }
 
+    public boolean excluirPetsPorTutor(int idTutor) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete("pet", "id_tutor = ?", new String[]{String.valueOf(idTutor)});
+        Log.d("ExcluirPets", "Número de pets excluídos: " + rowsDeleted);
+        db.close();
+        return rowsDeleted > 0;
+    }
+
     public Pet getPetByNfcId(String idNfc) {
         SQLiteDatabase db = this.getReadableDatabase();
         Pet pet = null;
 
         Cursor cursor = db.query("pet",
-                new String[]{"id_pet", "nome_pet", "raca_pet", "genero_pet", "data_nasc_pet", "id_nfc", "observacao_pet"},
+                new String[]{"id_pet", "nome_pet", "raca_pet", "genero_pet", "data_nasc_pet", "id_nfc", "observacao_pet", "id_tutor"},
                 "id_nfc = ?", new String[]{idNfc}, null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
@@ -184,9 +194,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("data_aplicacao", dataAplicacao);
         values.put("crmv", crmv);
 
-        long result = db.insert("aplicacao_vacina", null, values);
-        db.close();
-        return result != -1;
+        try {
+            db.insertOrThrow("aplicacao_vacina", null, values);
+            return true;
+        } catch (SQLiteConstraintException e) {
+            Log.e("DB_ERROR", "Erro ao inserir vacina: " + e.getMessage());
+            return false;
+        }
     }
 
     public List<Vacina> getAllVacinas() {
@@ -222,7 +236,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             Log.d("Debug", "Resultado encontrado no banco.");
             tutor = new Tutor(
-                    cursor.getString(cursor.getColumnIndexOrThrow("telefone_tutor"))
+                    cursor.getInt(cursor.getColumnIndexOrThrow("id_tutor")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("nome_tutor")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("senha_tutor")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("email_tutor")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("telefone_tutor")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("endereco_tutor")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("cidade_tutor")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("uf_tutor"))
             );
         } else {
             Log.d("Debug", "Nenhum resultado encontrado para o ID NFC.");
@@ -233,7 +254,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<Pet> searchPets(String query) {
-        List<Pet> petList = new ArrayList<>();
+        List<Pet> petsDoTutor = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM pet WHERE nome_pet LIKE ? OR raca_pet LIKE ?",
                 new String[]{"%" + query + "%", "%" + query + "%"});
@@ -249,12 +270,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndexOrThrow("observacao_pet")),
                         cursor.getInt(cursor.getColumnIndexOrThrow("id_tutor"))
                 );
-                petList.add(pet);
+                petsDoTutor.add(pet);
             } while (cursor.moveToNext());
         }
         cursor.close();
         db.close();
-        return petList;
+        return petsDoTutor;
     }
 
     public List<Pet> getPetsDoTutor(int id_tutor) {
@@ -279,5 +300,93 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         db.close();
         return petsDoTutor;
+    }
+
+    public Cursor getTutorById(int id_tutor) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM tutor WHERE id_tutor = ?", new String[]{String.valueOf(id_tutor)});
+    }
+
+    public boolean updateTutor(int id_tutor, String nome_tutor, String senha_tutor, String email_tutor, String telefone_tutor, String endereco_tutor, String cidade_tutor, String uf_tutor) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nome_tutor", nome_tutor);
+        values.put("senha_tutor", senha_tutor);
+        values.put("email_tutor", email_tutor);
+        values.put("telefone_tutor", telefone_tutor);
+        values.put("endereco_tutor", endereco_tutor);
+        values.put("cidade_tutor", cidade_tutor);
+        values.put("uf_tutor", uf_tutor);
+
+        int rows = db.update("tutor", values, "id_tutor = ?", new String[]{String.valueOf(id_tutor)});
+        return rows > 0;
+    }
+
+    public Cursor getMedVetByCrmv(String crmv) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT crmv, nome_mdv, senha_mdv FROM MDV WHERE crmv = ?", new String[]{crmv});
+    }
+
+    public boolean updateMedVet(String crmv, String nome, String senha) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nome_mdv", nome);
+        values.put("senha_mdv", senha);
+
+        int rowsUpdated = db.update("MDV", values, "crmv = ?", new String[]{crmv});
+        return rowsUpdated > 0;
+    }
+
+    public boolean deleteMedVetByCrmv(String crmv) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete("MDV", "crmv = ?", new String[]{crmv});
+        return rowsDeleted > 0;
+    }
+
+    public boolean deleteTutorById(int id_tutor) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete("tutor", "id_tutor = ?", new String[]{String.valueOf(id_tutor)});
+        return rowsDeleted > 0;
+    }
+
+    public boolean atualizarNomeVacina(int vacinaId, String novoNome) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nome_vacina", novoNome);
+
+        int rowsUpdated = db.update("vacina", values, "id_vacina = ?", new String[]{String.valueOf(vacinaId)});
+        return rowsUpdated > 0;
+    }
+
+    public boolean verificarVacinaJaAplicada(int petId, int vacinaId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM aplicacao_vacina WHERE id_pet = ? AND id_vacina = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(petId), String.valueOf(vacinaId)});
+
+        boolean existe = false;
+        if (cursor.moveToFirst()) {
+            existe = cursor.getInt(0) > 0;
+        }
+        cursor.close();
+        return existe;
+    }
+
+    public List<Vacina> searchVacina(String query) {
+        List<Vacina> vacinas = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM vacina WHERE nome_vacina LIKE ?",
+                new String[]{"%" + query + "%"});
+        if (cursor.moveToFirst()) {
+            do {
+                Vacina vacinaItem = new Vacina(
+                        cursor.getInt(cursor.getColumnIndexOrThrow("id_vacina")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("nome_vacina"))
+                );
+                vacinas.add(vacinaItem);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return vacinas;
     }
 }

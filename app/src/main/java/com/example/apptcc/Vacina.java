@@ -2,6 +2,7 @@ package com.example.apptcc;
 
 public class Vacina {
     private int id;
+    private int idPet;
     private String nomeVacina;
     private String dataAplicacao;
     private String crmv;
@@ -9,6 +10,13 @@ public class Vacina {
     public Vacina(int id, String nomeVacina) {
         this.id = id;
         this.nomeVacina = nomeVacina;
+    }
+
+    public Vacina(int id, int idPet, String nomeVacina, String dataAplicacao) {
+        this.id = id;
+        this.idPet = idPet;
+        this.nomeVacina = nomeVacina;
+        this.dataAplicacao = dataAplicacao;
     }
 
     public Vacina(int id, String nomeVacina, String dataAplicacao, String crmv) {
@@ -42,11 +50,15 @@ public class Vacina {
         this.id = id;
     }
 
+    public int getId_pet() {
+        return idPet;
+    }
+
     public String getNomeVacina() {
         return nomeVacina;
     }
 
-    public void setNome(String nomeVacina) {
+    public void setNomeVacina(String nomeVacina) {
         this.nomeVacina = nomeVacina;
     }
 

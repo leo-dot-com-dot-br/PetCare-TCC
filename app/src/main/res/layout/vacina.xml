@@ -44,4 +44,15 @@
         android:visibility="gone"
         android:layout_marginTop="4dp"
         android:layout_gravity="end" />
+
+    <Button
+        android:id="@+id/btnEditarVacina"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Editar"
+        android:layout_marginStart="8dp"
+        android:textSize="14sp"
+        android:padding="7dp"
+        android:backgroundTint="@color/blue2"
+        android:textColor="@android:color/white"/>
 </LinearLayout>
