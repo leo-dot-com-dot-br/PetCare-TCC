@@ -45,6 +45,7 @@ public class FormLogin extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
+    private boolean isTriggeredByNfc = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +165,7 @@ public class FormLogin extends AppCompatActivity {
 
             Tutor tutor = dbHelper.getTutorByNfcId(idNfc);
             if (tutor != null) {
+                isTriggeredByNfc = true;
                 obterLocalizacaoEEnviarWhatsApp(tutor.getTelefone_tutor(), tutor.getNome_tutor());
             } else {
                 Toast.makeText(this, "Nenhum tutor vinculado ao pet.", Toast.LENGTH_SHORT).show();
@@ -233,23 +235,6 @@ public class FormLogin extends AppCompatActivity {
         return idTutor;
     }
 
-    private void abrirWhatsApp(String telefoneTutor, String nomeTutor, double latitude, double longitude) {
-        try {
-            String mensagem = "Olá, " + nomeTutor + ", você perdeu seu pet? Aqui está a localização de onde ele está.";
-            // Codifica a mensagem para ser usada na URL
-            String mensagemCodificada = Uri.encode(mensagem);
-            // Gera o link do Google Maps com as coordenadas
-            String localizacao = "https://www.google.com/maps?q=" + latitude + "," + longitude;
-            // Monta a URL para o WhatsApp
-            String url = "https://api.whatsapp.com/send?phone=" + telefoneTutor + "&text=" + mensagemCodificada + "%0A" + Uri.encode(localizacao);
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(intent);
-        } catch (Exception e) {
-            Toast.makeText(this, "Erro ao abrir WhatsApp", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
@@ -259,31 +244,32 @@ public class FormLogin extends AppCompatActivity {
     }
 
     private void obterLocalizacaoEEnviarWhatsApp(String telefoneTutor, String nomeTutor) {
-        // Obter a localização
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, location -> {
-                        if (location != null) {
-                            // Enviar WhatsApp com a localização obtida
-                            double latitude = location.getLatitude();
-                            double longitude = location.getLongitude();
-                            abrirWhatsAppComLocalizacao(telefoneTutor, nomeTutor, latitude, longitude);
-                        } else {
-                            Toast.makeText(this, "Não foi possível obter a localização", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        } else {
-            Toast.makeText(this, "Permissão de localização não concedida.", Toast.LENGTH_SHORT).show();
+                != PackageManager.PERMISSION_GRANTED) {
+            isTriggeredByNfc = true; // Indique que a próxima permissão é devido à NFC
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+            return;
         }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null && isTriggeredByNfc) {
+                        isTriggeredByNfc = false;
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+                        abrirWhatsAppComLocalizacao(telefoneTutor, nomeTutor, latitude, longitude);
+                    } else {
+                        Toast.makeText(this, "Não foi possível obter a localização", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void abrirWhatsAppComLocalizacao(String telefoneTutor, String nomeTutor, double latitude, double longitude) {
         try {
-            // Construindo a mensagem com o nome do tutor e a localização
             String mensagem = "Olá, " + nomeTutor + ", você perdeu seu pet? " +
                     "Aqui está a localização do pet: https://www.google.com/maps?q=" + latitude + "," + longitude;
-
             String url = "https://api.whatsapp.com/send?phone=" + telefoneTutor + "&text=" + Uri.encode(mensagem);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
@@ -299,8 +285,10 @@ public class FormLogin extends AppCompatActivity {
 
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permissão concedida, pode tentar obter a localização
-                obterLocalizacaoEEnviarWhatsApp("telefoneTutor", "nomeTutor");
+                if (isTriggeredByNfc) {
+                    isTriggeredByNfc = false;
+                    obterLocalizacaoEEnviarWhatsApp("telefoneTutor", "nomeTutor");
+                }
             } else {
                 Toast.makeText(this, "Permissão de localização negada.", Toast.LENGTH_SHORT).show();
             }
