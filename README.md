@@ -38,7 +38,7 @@ Aplicativo desenvolvido como Trabalho de Conclusão de Curso, com o objetivo de 
 - **Aplicações**: id, pet_id, vacina_id, data, medico_id
 
 ## 📌 Sobre o projeto
-Este projeto teve como objetivo integrar conhecimentos de desenvolvimento mobile, banco de dados local, autenticação por perfil e identificação via NFC para criar uma solução real para clínicas veterinárias ou tutores.
+Este projeto teve como objetivo integrar conhecimentos de desenvolvimento mobile, banco de dados local, autenticação por perfil e identificação via NFC que abre uma nonva conversa no Whatsapp com a localização em que foi lido para criar uma solução real para clínicas veterinárias ou tutores.
 
 ---
 
